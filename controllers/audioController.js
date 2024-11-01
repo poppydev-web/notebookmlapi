@@ -35,11 +35,11 @@ const _generateAudio = async (google_doc, text, prompt, audioId) => {
 const saveAudioData = (audioId, audioSrc) => {
   const audioData = loadAudioData();
   audioData[audioId] = audioSrc;
-  fs.writeFileSync(audioDataFile, JSON.stringify(audioData, null , 2));
+  fs.writeFileSync(audioDataFile, JSON.stringify(audioData, null, 2));
 }
 
 const loadAudioData = () => {
-  if(!fs.existsSync(audioDataFile)) {
+  if (!fs.existsSync(audioDataFile)) {
     return {};
   }
   const data = fs.readFileSync(audioDataFile);
@@ -77,28 +77,32 @@ exports.generateAudio = async (req, res) => {
 // Controller for retrieving audio
 exports.getAudio = async (req, res) => {
   const filename = req.params.id;
-  const filePath = path.join('/root/Downloads', filename + '.wav');
+  const videoData = loadAudioData();
+  if (videoData[filename] == 'Not Ready.') {
+    res.status(200).json({ status_message: 'In progress' });
+  } else if (videoData[filename]) {
+    const filePath = path.join('/root/Downloads', filename + '.wav');
 
-  // Check if the file exists
-  fs.access(filePath, fs.constants.F_OK, (err) => {
+    fs.access(filePath, fs.constants.F_OK, (err) => {
       if (err) {
-          console.error("File not found:", err);
-          return res.status(404).send("File not found.");
+        console.error("File not found:", err);
+        return res.status(404).send("File not found.");
       }
-      
+
       // Set headers for serving audio in the browser
       res.setHeader('Content-Type', 'audio/wav');
       res.setHeader('Content-Disposition', 'inline');
-      
+
       // Stream the audio file to the response
       const readStream = fs.createReadStream(filePath);
       readStream.pipe(res);
-  });
+    });
+  }
 };
 
 exports.startJobs = async () => {
   requestQueue = loadJobData();
-  if(requestQueue){
+  if (requestQueue) {
     processQueue();
   }
 }
