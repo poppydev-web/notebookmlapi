@@ -1,5 +1,5 @@
 const { v4: uuidv4 } = require('uuid');
-const { newNotebook, addGoogleDocs, addTexts, addPrompt, clickGenerate, clickSmallGenerateButton, getSrc } = require('./browerController');
+const { newNotebook, addGoogleDocs, addTexts, addPrompt, clickGenerate, clickSmallGenerateButton, setNotebookName, getSrc } = require('./browerController');
 const { addJob, removeJob, loadJobData } = require('./jobConroller');
 const fs = require('fs');
 const path = require('path');
@@ -10,15 +10,18 @@ let requestQueue = [];
 
 
 
-const generateAudio = async (google_doc, text, prompt, audioId) => {
+const _generateAudio = async (google_doc, text, prompt, audioId) => {
   console.log('generateAudio');
   await newNotebook();
   if (google_doc) {
+    console.log('parameter has google doc');
     await addGoogleDocs(google_doc);
   }
   if (text) {
+    console.log('parameter has text');
     await addTexts(text);
   }
+  await setNotebookName(audioId);
   if (prompt) {
     await addPrompt(prompt);
     await clickSmallGenerateButton();
@@ -47,7 +50,7 @@ const processQueue = () => {
   console.log("processQueue");
   if (requestQueue.length > 0) {
     const { google_doc, text, prompt, audioId } = requestQueue[0];
-    generateAudio(google_doc, text, prompt, audioId)
+    _generateAudio(google_doc, text, prompt, audioId)
       .then(status => {
         saveAudioData(audioId, status);
         removeJob();
