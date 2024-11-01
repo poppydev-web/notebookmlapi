@@ -34,7 +34,7 @@ const clickGoogleDocs = async () => {
 
 exports.newNotebook = async () => {
     console.log('Navigating to dashboard...');
-    await page.goto('https://notebooklm.google.com/?_gl=1*1lhebzs*_ga*NTExMzQzOS4xNzMwMTc2Nzk0*_ga_W0LDH41ZCB*MTczMDIyNTIxOS40LjEuMTczMDIyNjI1Mi41MC4wLjA.');
+    await page.goto(process.env.NOTEBOOKML_TOKEN_URL);
     console.log('Clicking New Notebook button...');
 
     await page.waitForSelector('span.create-new-label', { visible: true });
