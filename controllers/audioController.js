@@ -76,7 +76,7 @@ exports.generateAudio = async (req, res) => {
 
 // Controller for retrieving audio
 exports.getAudio = async (req, res) => {
-  const filename = req.params.filename;
+  const filename = req.params.id;
     const filePath = path.join('/root/Downloads', filename + '.wav');
     
     res.download(filePath, (err) => {
@@ -86,3 +86,10 @@ exports.getAudio = async (req, res) => {
         }
     });
 };
+
+exports.startJobs = async () => {
+  requestQueue = loadJobData();
+  if(requestQueue){
+    processQueue();
+  }
+}
