@@ -77,14 +77,23 @@ exports.generateAudio = async (req, res) => {
 // Controller for retrieving audio
 exports.getAudio = async (req, res) => {
   const filename = req.params.id;
-    const filePath = path.join('/root/Downloads', filename + '.wav');
-    
-    res.download(filePath, (err) => {
-        if (err) {
-            console.error("Error downloading file:", err);
-            res.status(404).send("File not found.");
-        }
-    });
+  const filePath = path.join('/root/Downloads', filename + '.wav');
+
+  // Check if the file exists
+  fs.access(filePath, fs.constants.F_OK, (err) => {
+      if (err) {
+          console.error("File not found:", err);
+          return res.status(404).send("File not found.");
+      }
+      
+      // Set headers for serving audio in the browser
+      res.setHeader('Content-Type', 'audio/wav');
+      res.setHeader('Content-Disposition', 'inline');
+      
+      // Stream the audio file to the response
+      const readStream = fs.createReadStream(filePath);
+      readStream.pipe(res);
+  });
 };
 
 exports.startJobs = async () => {
